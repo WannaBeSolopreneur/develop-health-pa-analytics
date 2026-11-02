@@ -69,30 +69,43 @@ def _plans(catalog) -> list[Plan]:
     return plans
 
 
-def _merge_breakdown(rate_table: dict, hours_table: dict) -> list[dict]:
-    hours = {row[0]: row for row in hours_table["rows"]}
-    merged = []
-    for row in rate_table["rows"]:
-        hour_row = hours.get(row[0])
-        merged.append(
-            {
-                "name": row[0],
-                "rate": row[1],
-                "decided": row[2],
-                "hours": hour_row[1] if hour_row else "not available",
-                "hour_n": hour_row[2] if hour_row else "0",
-            }
-        )
-    return merged
+# Display labels only. The hours and rates still come from the SQL rows.
+PAYER_SHORT = {
+    "UnitedHealthcare Commercial PPO": "UHC Commercial",
+    "Aetna Commercial PPO": "Aetna",
+    "Cigna Commercial": "Cigna",
+    "Elevance Anthem BCBS Commercial": "Elevance",
+    "Blue Cross Blue Shield of Illinois": "BCBS Illinois",
+    "UnitedHealthcare Medicare Advantage": "UHC Medicare",
+    "Humana Medicare Advantage": "Humana MA",
+    "SilverScript Medicare Part D": "SilverScript",
+    "Wellcare Medicare Part D": "Wellcare",
+    "Prairie State Medicaid MCO": "Prairie Medicaid",
+    "Medicare GLP-1 Bridge": "GLP-1 Bridge",
+}
+
+
+def _count_chart(pairs: list[tuple[str, int]], scale: int | None = None) -> list[dict]:
+    """Bar widths are computed here. The page only paints width_pct."""
+    peak = scale if scale is not None else max((count for _, count in pairs), default=0)
+    peak = peak or 1
+    return [
+        {
+            "label": label,
+            "count_label": commas(count),
+            "width_pct": round(100 * count / peak, 1),
+        }
+        for label, count in pairs
+    ]
 
 
 def _funnel_block(row: dict) -> dict:
     stages = [
-        ("Benefit check started", int(row["cases_started"])),
+        ("Started", int(row["cases_started"])),
         ("Benefit verified", int(row["cases_benefit_verified"])),
-        ("Prior authorization required", int(row["cases_pa_required"])),
+        ("PA required", int(row["cases_pa_required"])),
         ("Submitted", int(row["cases_submitted"])),
-        ("Decided after submission", int(row["cases_decided_after_submit"])),
+        ("Decided", int(row["cases_decided_after_submit"])),
         ("Approved", int(row["cases_approved"])),
     ]
     started = stages[0][1] or 1
@@ -100,19 +113,75 @@ def _funnel_block(row: dict) -> dict:
         {"label": label, "count_label": commas(count), "width_pct": round(100 * count / started, 1)}
         for label, count in stages
     ]
-    exits = [
-        {"label": "Covered with no prior authorization", "count_label": commas(int(row["cases_covered_no_pa"]))},
-        {"label": "Denied before submission", "count_label": commas(int(row["cases_denied_before_submission"]))},
-        {"label": "Abandoned", "count_label": commas(int(row["cases_abandoned"]))},
-    ]
-    stuck = [
-        {"label": "Benefit check", "count_label": commas(int(row["stuck_benefit_check"]))},
-        {"label": "Not submitted", "count_label": commas(int(row["stuck_pa_not_submitted"]))},
-        {"label": "Waiting on information", "count_label": commas(int(row["stuck_awaiting_info"]))},
-        {"label": "Waiting on a decision", "count_label": commas(int(row["stuck_awaiting_decision"]))},
-        {"label": "Waiting on an appeal", "count_label": commas(int(row["stuck_awaiting_appeal"]))},
-    ]
+    exits = _count_chart(
+        [
+            ("Covered, no prior authorization", int(row["cases_covered_no_pa"])),
+            ("Denied before submission", int(row["cases_denied_before_submission"])),
+            ("Abandoned", int(row["cases_abandoned"])),
+        ]
+    )
+    stuck = _count_chart(
+        [
+            ("Benefit check", int(row["stuck_benefit_check"])),
+            ("Not submitted", int(row["stuck_pa_not_submitted"])),
+            ("Waiting on information", int(row["stuck_awaiting_info"])),
+            ("Waiting on a decision", int(row["stuck_awaiting_decision"])),
+            ("Waiting on an appeal", int(row["stuck_awaiting_appeal"])),
+        ]
+    )
     return {"funnel": funnel, "exits": exits, "stuck": stuck}
+
+
+def _hours_chart(rate_answer, hours_answer, catalog, dimension: str, limit: int | None = None) -> list[dict]:
+    """Top slices by decided volume, then drawn longest bar first.
+
+    width_pct is the share of the slowest bar in this chart. It is display
+    scale only. The hour text is hours_label() on the SQL median.
+    """
+    hours_by = {row[dimension]: row for row in hours_answer.rows}
+    ranked = sorted(
+        rate_answer.rows,
+        key=lambda row: as_int(row["approval_denominator"]) or 0,
+        reverse=True,
+    )
+    if limit is not None:
+        ranked = ranked[:limit]
+    drafted = []
+    for row in ranked:
+        raw = row[dimension]
+        hour = hours_by.get(raw, {})
+        value = as_float(hour.get("median_hours_to_decision"))
+        n = as_int(hour.get("decision_duration_n")) or 0
+        decided = as_int(row["approval_denominator"]) or 0
+        rate = as_float(row["approval_rate"])
+        name = catalog.value_labels.get((dimension, raw), str(raw))
+        usable = value if value is not None and n else 0.0
+        drafted.append(
+            {
+                "name": name,
+                "short": PAYER_SHORT.get(name, name) if dimension == "payer_name" else name,
+                "hours": hours_label(value) if value is not None and n else "not available",
+                "rate": "not available" if rate is None or not decided else pct(rate),
+                "decided": commas(decided),
+                "_hours": usable,
+            }
+        )
+    drafted.sort(key=lambda item: (-item["_hours"], item["name"]))
+    peak = max((item["_hours"] for item in drafted), default=0) or 1
+    chart = []
+    for item in drafted:
+        row = {
+            "name": item["name"],
+            "short": item["short"],
+            "hours": item["hours"],
+            "rate": item["rate"],
+            "decided": item["decided"],
+            "width_pct": round(100 * item["_hours"] / peak, 1),
+        }
+        for key in ("name", "short", "hours", "rate", "decided"):
+            assert_plain(row[key], "chart")
+        chart.append(row)
+    return chart
 
 
 def _date_label(value: str) -> str:
@@ -199,14 +268,19 @@ def main() -> None:
 
         approval = ask("approval rate by payer", use_llm=False, connection=connection, catalog=catalog)
         decision = ask("median hours to decision by payer", use_llm=False, connection=connection, catalog=catalog)
-        by_payer = _merge_breakdown(approval.table, decision.table)
-        by_drug = _merge_breakdown(
-            ask("approval rate by drug", use_llm=False, connection=connection, catalog=catalog).table,
-            ask("median hours to decision by drug", use_llm=False, connection=connection, catalog=catalog).table,
+        by_drug_rate = ask("approval rate by drug", use_llm=False, connection=connection, catalog=catalog)
+        by_drug_hours = ask("median hours to decision by drug", use_llm=False, connection=connection, catalog=catalog)
+        by_channel_rate = ask("approval rate by channel", use_llm=False, connection=connection, catalog=catalog)
+        by_channel_hours = ask(
+            "median hours to decision by channel", use_llm=False, connection=connection, catalog=catalog
         )
-        by_channel = _merge_breakdown(
-            ask("approval rate by channel", use_llm=False, connection=connection, catalog=catalog).table,
-            ask("median hours to decision by channel", use_llm=False, connection=connection, catalog=catalog).table,
+        payer_hours = _hours_chart(approval, decision, catalog, "payer_name", limit=6)
+        by_payer = _hours_chart(approval, decision, catalog, "payer_name")
+        by_drug = _hours_chart(by_drug_rate, by_drug_hours, catalog, "drug_name")
+        by_channel = _hours_chart(by_channel_rate, by_channel_hours, catalog, "channel")
+        count_word = {6: "Six"}.get(len(payer_hours), str(len(payer_hours)))
+        payer_caption = (
+            f"{count_word} largest payers, by decided cases. The bar is median hours to a decision."
         )
         rate_row = ask("What is the approval rate?", use_llm=False, connection=connection, catalog=catalog).rows[0]
         hour_row = ask("median hours to decision", use_llm=False, connection=connection, catalog=catalog).rows[0]
@@ -218,42 +292,47 @@ def main() -> None:
                 "value": pct(as_float(rate_row["approval_rate"])),
                 "note": (
                     f"{commas(as_int(rate_row['approval_numerator']))} of "
-                    f"{commas(as_int(rate_row['approval_denominator']))} decided cases"
+                    f"{commas(as_int(rate_row['approval_denominator']))} decided"
                 ),
             },
             {
                 "label": "Median hours to decision",
                 "value": hours_label(as_float(hour_row["median_hours_to_decision"])),
-                "note": (
-                    f"{commas(as_int(hour_row['decision_duration_n']))} cases with a submission and a decision"
-                ),
+                "note": f"{commas(as_int(hour_row['decision_duration_n']))} cases",
             },
             {
                 "label": "Abandonment rate",
                 "value": pct(as_float(abandon_row["abandonment_rate"])),
                 "note": (
                     f"{commas(as_int(abandon_row['abandon_numerator']))} of "
-                    f"{commas(as_int(abandon_row['abandon_denominator']))} cases that reached prior authorization and then closed"
+                    f"{commas(as_int(abandon_row['abandon_denominator']))} closed"
                 ),
             },
             {
                 "label": "Cases stuck",
                 "value": commas(as_int(stuck_row["cases_stuck"])),
-                "note": "Open longer than the stage SLA",
+                "note": "Open past the stage SLA",
             },
         ]
         intro = (
-            f"These numbers are from one pipeline run for Lakeshore Specialty Clinic. "
-            f"The history runs from {_date_label(behavior['window_start'])} through {_date_label(behavior['window_end'])}. "
-            f"Open cases are measured at {_date_label(behavior['as_of'])}. "
-            f"There are {commas(as_int(mart['cases']))} cases in this clinic slice. "
-            "Patients, prescribers, and events are synthetic. Payer behavior in the generator is synthetic. "
-            "Drug names and package NDCs are real public identifiers."
+            f"Synthetic data. {commas(as_int(mart['cases']))} cases at {catalog.featured_clinic_name}, "
+            f"{_date_label(behavior['window_start'])} through {_date_label(behavior['window_end'])}."
+        )
+        stuck_note = (
+            "A case is stuck when it is still open and has been in the current stage longer than the SLA. "
+            f"A case on the SLA is not stuck. The clock stops at {_date_label(behavior['as_of'])}."
         )
         definitions = [
             {"name": metric.name, "text": metric.definition} for metric in catalog.metrics.values()
         ]
-        for blob in (intro, MISSING, *(card["value"] for card in headlines), *(card["note"] for card in headlines)):
+        for blob in (
+            intro,
+            stuck_note,
+            MISSING,
+            payer_caption,
+            *(card["value"] for card in headlines),
+            *(card["note"] for card in headlines),
+        ):
             assert_plain(blob, "page")
         for item in definitions:
             assert_plain(item["text"], item["name"])
@@ -286,15 +365,17 @@ def main() -> None:
             "fixtures": fixtures,
             "page": {
                 "intro": intro,
+                "stuck_note": stuck_note,
                 "missing_message": MISSING,
                 "headlines": headlines,
+                "payer_caption": payer_caption,
+                "payer_hours": payer_hours,
                 "breakdowns": {"payer": by_payer, "drug": by_drug, "channel": by_channel},
                 "definitions": definitions,
                 "chips": [
                     "What is the approval rate?",
                     "Median hours to decision by payer",
                     "Approval rate for Wegovy",
-                    "Where are cases stuck?",
                     "What is our revenue?",
                 ],
                 **_funnel_block(funnel_row),

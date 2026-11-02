@@ -23,8 +23,8 @@ body {
     var(--paper);
   color: var(--ink);
   font-family: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
-  font-size: 1.05rem;
-  line-height: 1.55;
+  font-size: 1rem;
+  line-height: 1.45;
 }
 
 .top, main, footer {
@@ -33,7 +33,7 @@ body {
   margin-right: auto;
 }
 
-.top { padding: 2.5rem 0 0.5rem; }
+.top { padding: 1.6rem 0 0.2rem; }
 
 .kicker {
   margin: 0 0 0.6rem;
@@ -51,23 +51,23 @@ h1, h2, h3, h4 {
   line-height: 1.15;
 }
 
-h1 { margin: 0 0 0.75rem; font-size: clamp(2rem, 5vw, 3.1rem); }
+h1 { margin: 0 0 0.45rem; font-size: clamp(1.7rem, 4.4vw, 2.45rem); }
 
 h2 {
-  margin: 0 0 0.75rem;
-  font-size: 1.7rem;
+  margin: 0 0 0.4rem;
+  font-size: 1.35rem;
 }
 
-h3 { margin: 1.6rem 0 0.4rem; font-size: 1.35rem; }
+h3 { margin: 1.15rem 0 0.2rem; font-size: 1.12rem; }
 
-h4 { margin: 0 0 0.6rem; font-size: 1.15rem; }
+h4 { margin: 0.9rem 0 0.3rem; font-size: 0.98rem; }
 
-.lede, p { margin: 0 0 0.9rem; }
+.lede, p { margin: 0 0 0.65rem; }
 
-.lede { font-size: 1.15rem; max-width: 38rem; }
+.lede { font-size: 1.02rem; max-width: 36rem; }
 
 section {
-  padding: 1.4rem 0 0.4rem;
+  padding: 0.95rem 0 0.15rem;
   border-top: 1px solid var(--line);
 }
 
@@ -123,20 +123,21 @@ section {
   text-transform: uppercase;
 }
 
-.quiet { color: var(--muted); font-size: 0.95rem; }
+.quiet { color: var(--muted); font-size: 0.9rem; margin-bottom: 0.45rem; }
 
 .cards {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 0.7rem;
-  margin: 1rem 0 0.4rem;
+  gap: 0.6rem;
+  margin: 0.7rem 0 0.15rem;
 }
 
 .card {
   background: var(--card);
   border: 1px solid var(--line);
+  border-top: 3px solid var(--copper);
   border-radius: 14px;
-  padding: 0.85rem 0.9rem 0.75rem;
+  padding: 0.7rem 0.75rem 0.6rem;
   box-shadow: var(--shadow);
 }
 
@@ -151,10 +152,11 @@ section {
 
 .card strong {
   display: block;
-  margin: 0.25rem 0;
+  margin: 0.2rem 0 0.1rem;
   font-family: Palatino, Georgia, serif;
-  font-size: 1.55rem;
+  font-size: 1.45rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
 }
 
 .card em {
@@ -164,22 +166,54 @@ section {
   font-size: 0.82rem;
 }
 
-.funnel { display: grid; gap: 0.45rem; margin: 0.6rem 0 1rem; }
+.funnel, .chart { display: grid; gap: 0.55rem; margin: 0.35rem 0 0.3rem; }
 
-.stage {
+.stage, .hbar {
   display: grid;
-  grid-template-columns: minmax(8.5rem, 13.5rem) minmax(0, 1fr) auto;
-  gap: 0.55rem 0.7rem;
+  grid-template-columns: minmax(7.2rem, 10.5rem) minmax(0, 1fr) auto;
+  gap: 0.15rem 0.7rem;
   align-items: center;
 }
 
-.stage .track { grid-column: 2; grid-row: 1; }
-.stage b { grid-column: 3; grid-row: 1; }
+.hbar { grid-template-rows: auto auto; }
 
-.stage b { font-weight: 600; font-variant-numeric: tabular-nums; }
+.stage-name, .hbar-name {
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.hbar-name { grid-column: 1; grid-row: 1; }
+
+.hbar-meta {
+  grid-column: 1;
+  grid-row: 2;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+.hbar-count {
+  grid-template-rows: auto;
+  grid-template-columns: minmax(13.5rem, 17rem) minmax(0, 1fr) auto;
+}
+
+.stage .track, .hbar .track { height: 0.95rem; }
+
+.hbar .track { grid-column: 2; grid-row: 1 / span 2; align-self: center; }
+
+.hbar-count .track { grid-row: 1; }
+
+.stage b, .hbar b {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-size: 0.92rem;
+  white-space: nowrap;
+}
+
+.hbar b { grid-column: 3; grid-row: 1 / span 2; }
+
+.hbar-count b { grid-row: 1; }
 
 .track {
-  height: 0.7rem;
   background: #efe6da;
   border-radius: 999px;
   overflow: hidden;
@@ -188,42 +222,29 @@ section {
 .fill {
   display: block;
   height: 100%;
-  background: var(--copper);
+  min-width: 2px;
+  background: linear-gradient(90deg, #a85a32, var(--copper));
   border-radius: 999px;
 }
 
 .stage.approved .fill { background: var(--good); }
 
-.exit-row, .stuck { display: grid; gap: 0.4rem; margin-bottom: 0.6rem; }
+details:not([open]) > :not(summary) { display: none; }
 
-.exit, .stuck-row, .split-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
+.fold {
+  margin: 0.85rem 0 0.2rem;
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 0.55rem 0.75rem;
+  border-radius: 14px;
+  padding: 0.7rem 0.9rem 0.85rem;
 }
 
-.stuck-row strong, .exit strong, .split-row strong { font-variant-numeric: tabular-nums; }
-
-.splits { display: grid; gap: 1rem; }
-
-.split-row { align-items: baseline; }
-
-.split-row span { color: var(--muted); font-size: 0.85rem; }
-
-.split-main { display: flex; flex-direction: column; gap: 0.1rem; min-width: 0; }
-
-.split-nums {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.15rem;
-  text-align: right;
-  white-space: nowrap;
+.fold summary {
+  cursor: pointer;
+  font-weight: 700;
 }
+
+.fold[open] summary { margin-bottom: 0.35rem; }
 
 .ask-row { display: flex; gap: 0.5rem; }
 
@@ -287,11 +308,7 @@ button[type="submit"] {
 
 .result td:last-child, .result th:last-child { text-align: right; }
 
-.defs { margin: 1.2rem 0 0.4rem; }
-
-.defs summary { cursor: pointer; font-weight: 700; }
-
-.definition-block { padding: 0.7rem 0; border-bottom: 1px solid var(--line); }
+.definition-block { padding: 0.55rem 0; border-bottom: 1px solid var(--line); }
 
 .links a { color: var(--copper); font-weight: 700; }
 
@@ -299,16 +316,23 @@ footer { padding: 1rem 0 2.5rem; color: var(--muted); font-size: 0.9rem; }
 
 @media (max-width: 800px) {
   .cards { grid-template-columns: 1fr 1fr; }
-  .stage { grid-template-columns: 1fr auto; }
-  .stage .track { grid-column: 1 / -1; grid-row: 2; }
-  .stage b { grid-column: 2; grid-row: 1; }
+  .stage, .hbar, .hbar-count {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name value"
+      "meta meta"
+      "bar bar";
+  }
+  .stage-name, .hbar-name { grid-area: name; }
+  .stage b, .hbar b { grid-area: value; }
+  .stage .track, .hbar .track { grid-area: bar; }
+  .hbar-meta { grid-area: meta; }
+  .stage, .hbar-count { grid-template-areas: "name value" "bar bar"; }
 }
 
 @media (max-width: 560px) {
-  body { font-size: 1rem; }
-  .cards { grid-template-columns: 1fr; }
-  .ask-row, .split-row, .exit, .stuck-row { flex-direction: column; }
-  .split-nums { align-items: flex-start; text-align: left; }
+  .ask-row { flex-direction: column; }
   .result td:last-child, .result th:last-child { text-align: left; }
-  .top { padding-top: 1.5rem; }
+  .top { padding-top: 1.15rem; }
+  button[type="submit"] { width: 100%; }
 }

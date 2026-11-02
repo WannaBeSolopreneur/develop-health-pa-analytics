@@ -258,15 +258,35 @@ function el(tag, className, text) {
   return node;
 }
 
-function renderBreakdown(target, rows) {
+function bar(widthPct) {
+  const track = el("div", "track");
+  const fill = el("span", "fill");
+  fill.style.width = widthPct + "%";
+  track.append(fill);
+  return track;
+}
+
+function renderHourBars(target, rows) {
   target.replaceChildren();
   rows.forEach(function (row) {
-    const line = el("div", "split-row");
-    const main = el("div", "split-main");
-    main.append(el("strong", null, row.name), el("span", null, row.decided + " decided"));
-    const nums = el("div", "split-nums");
-    nums.append(el("strong", null, row.rate), el("span", null, row.hours));
-    line.append(main, nums);
+    const line = el("div", "hbar");
+    const name = el("span", "hbar-name", row.short || row.name);
+    if (row.name && row.short && row.name !== row.short) name.title = row.name;
+    line.append(
+      name,
+      el("span", "hbar-meta", row.rate + " · " + row.decided + " decided"),
+      bar(row.width_pct),
+      el("b", null, row.hours)
+    );
+    target.append(line);
+  });
+}
+
+function renderCountBars(target, rows) {
+  target.replaceChildren();
+  rows.forEach(function (row) {
+    const line = el("div", "hbar hbar-count");
+    line.append(el("span", "hbar-name", row.label), bar(row.width_pct), el("b", null, row.count_label));
     target.append(line);
   });
 }
@@ -326,38 +346,26 @@ function runAsk(question) {
 function boot() {
   const page = window.DEMO.page;
   document.getElementById("demo-intro").textContent = page.intro;
+  document.getElementById("stuck-note").textContent = page.stuck_note;
   const cards = document.getElementById("headlines");
   page.headlines.forEach(function (card) {
     const node = el("article", "card");
     node.append(el("span", null, card.label), el("strong", null, card.value), el("em", null, card.note));
     cards.append(node);
   });
+  document.getElementById("payer-caption").textContent = page.payer_caption;
   const funnel = document.getElementById("funnel");
   page.funnel.forEach(function (stage) {
     const row = el("div", "stage" + (stage.label === "Approved" ? " approved" : ""));
-    row.append(el("span", null, stage.label), el("b", null, stage.count_label));
-    const track = el("div", "track");
-    const fill = el("span", "fill");
-    fill.style.width = stage.width_pct + "%";
-    track.append(fill);
-    row.append(track);
+    row.append(el("span", "stage-name", stage.label), bar(stage.width_pct), el("b", null, stage.count_label));
     funnel.append(row);
   });
-  const exits = document.getElementById("exits");
-  page.exits.forEach(function (item) {
-    const row = el("div", "exit");
-    row.append(el("span", null, item.label), el("strong", null, item.count_label));
-    exits.append(row);
-  });
-  const stuck = document.getElementById("stuck");
-  page.stuck.forEach(function (item) {
-    const row = el("div", "stuck-row");
-    row.append(el("span", null, item.label), el("strong", null, item.count_label));
-    stuck.append(row);
-  });
-  renderBreakdown(document.getElementById("by-payer"), page.breakdowns.payer);
-  renderBreakdown(document.getElementById("by-drug"), page.breakdowns.drug);
-  renderBreakdown(document.getElementById("by-channel"), page.breakdowns.channel);
+  renderHourBars(document.getElementById("payer-chart"), page.payer_hours);
+  renderCountBars(document.getElementById("exits"), page.exits);
+  renderCountBars(document.getElementById("stuck"), page.stuck);
+  renderHourBars(document.getElementById("by-payer"), page.breakdowns.payer);
+  renderHourBars(document.getElementById("by-drug"), page.breakdowns.drug);
+  renderHourBars(document.getElementById("by-channel"), page.breakdowns.channel);
   const chips = document.getElementById("chips");
   page.chips.forEach(function (question) {
     const button = el("button", null, question);

@@ -7185,224 +7185,303 @@ window.DEMO = {
     }
   ],
   "page": {
-    "intro": "These numbers are from one pipeline run for Lakeshore Specialty Clinic. The history runs from November 1, 2025 through November 1, 2026. Open cases are measured at November 2, 2026. There are 6,482 cases in this clinic slice. Patients, prescribers, and events are synthetic. Payer behavior in the generator is synthetic. Drug names and package NDCs are real public identifiers.",
+    "intro": "Synthetic data. 6,482 cases at Lakeshore Specialty Clinic, November 1, 2025 through November 1, 2026.",
+    "stuck_note": "A case is stuck when it is still open and has been in the current stage longer than the SLA. A case on the SLA is not stuck. The clock stops at November 2, 2026.",
     "missing_message": "That question maps to a defined metric, but this page only has a precomputed answer for the clinic overall, one breakdown, or one filter. I will not estimate the missing slice.",
     "headlines": [
       {
         "label": "Approval rate",
         "value": "65.5%",
-        "note": "3,651 of 5,574 decided cases"
+        "note": "3,651 of 5,574 decided"
       },
       {
         "label": "Median hours to decision",
         "value": "46.3 hours",
-        "note": "5,323 cases with a submission and a decision"
+        "note": "5,323 cases"
       },
       {
         "label": "Abandonment rate",
         "value": "11.7%",
-        "note": "699 of 5,998 cases that reached prior authorization and then closed"
+        "note": "699 of 5,998 closed"
       },
       {
         "label": "Cases stuck",
         "value": "109",
-        "note": "Open longer than the stage SLA"
+        "note": "Open past the stage SLA"
+      }
+    ],
+    "payer_caption": "Six largest payers, by decided cases. The bar is median hours to a decision.",
+    "payer_hours": [
+      {
+        "name": "UnitedHealthcare Medicare Advantage",
+        "short": "UHC Medicare",
+        "hours": "52.6 hours",
+        "rate": "55.1%",
+        "decided": "570",
+        "width_pct": 100.0
+      },
+      {
+        "name": "SilverScript Medicare Part D",
+        "short": "SilverScript",
+        "hours": "50.5 hours",
+        "rate": "59.6%",
+        "decided": "448",
+        "width_pct": 96.0
+      },
+      {
+        "name": "Aetna Commercial PPO",
+        "short": "Aetna",
+        "hours": "50.0 hours",
+        "rate": "71.4%",
+        "decided": "549",
+        "width_pct": 95.1
+      },
+      {
+        "name": "UnitedHealthcare Commercial PPO",
+        "short": "UHC Commercial",
+        "hours": "44.1 hours",
+        "rate": "69.5%",
+        "decided": "768",
+        "width_pct": 83.8
+      },
+      {
+        "name": "Blue Cross Blue Shield of Illinois",
+        "short": "BCBS Illinois",
+        "hours": "43.8 hours",
+        "rate": "69.5%",
+        "decided": "1,162",
+        "width_pct": 83.2
+      },
+      {
+        "name": "Prairie State Medicaid MCO",
+        "short": "Prairie Medicaid",
+        "hours": "19.6 hours",
+        "rate": "64.6%",
+        "decided": "525",
+        "width_pct": 37.4
       }
     ],
     "breakdowns": {
       "payer": [
         {
-          "name": "Aetna Commercial PPO",
-          "rate": "71.4%",
-          "decided": "392 of 549",
-          "hours": "50.0 hours",
-          "hour_n": "551"
-        },
-        {
-          "name": "Blue Cross Blue Shield of Illinois",
-          "rate": "69.5%",
-          "decided": "808 of 1,162",
-          "hours": "43.8 hours",
-          "hour_n": "1,167"
-        },
-        {
-          "name": "Cigna Commercial",
-          "rate": "70.2%",
-          "decided": "297 of 423",
-          "hours": "47.7 hours",
-          "hour_n": "425"
-        },
-        {
-          "name": "Elevance Anthem BCBS Commercial",
-          "rate": "70.7%",
-          "decided": "236 of 334",
-          "hours": "56.6 hours",
-          "hour_n": "335"
+          "name": "Medicare GLP-1 Bridge",
+          "short": "GLP-1 Bridge",
+          "hours": "74.5 hours",
+          "rate": "80.9%",
+          "decided": "68",
+          "width_pct": 100.0
         },
         {
           "name": "Humana Medicare Advantage",
-          "rate": "55.7%",
-          "decided": "245 of 440",
+          "short": "Humana MA",
           "hours": "62.1 hours",
-          "hour_n": "367"
+          "rate": "55.7%",
+          "decided": "440",
+          "width_pct": 83.4
         },
         {
-          "name": "Medicare GLP-1 Bridge",
-          "rate": "80.9%",
-          "decided": "55 of 68",
-          "hours": "74.5 hours",
-          "hour_n": "68"
-        },
-        {
-          "name": "Prairie State Medicaid MCO",
-          "rate": "64.6%",
-          "decided": "339 of 525",
-          "hours": "19.6 hours",
-          "hour_n": "526"
-        },
-        {
-          "name": "SilverScript Medicare Part D",
-          "rate": "59.6%",
-          "decided": "267 of 448",
-          "hours": "50.5 hours",
-          "hour_n": "383"
-        },
-        {
-          "name": "UnitedHealthcare Commercial PPO",
-          "rate": "69.5%",
-          "decided": "534 of 768",
-          "hours": "44.1 hours",
-          "hour_n": "771"
-        },
-        {
-          "name": "UnitedHealthcare Medicare Advantage",
-          "rate": "55.1%",
-          "decided": "314 of 570",
-          "hours": "52.6 hours",
-          "hour_n": "490"
+          "name": "Elevance Anthem BCBS Commercial",
+          "short": "Elevance",
+          "hours": "56.6 hours",
+          "rate": "70.7%",
+          "decided": "334",
+          "width_pct": 76.0
         },
         {
           "name": "Wellcare Medicare Part D",
-          "rate": "57.1%",
-          "decided": "164 of 287",
+          "short": "Wellcare",
           "hours": "53.7 hours",
-          "hour_n": "240"
+          "rate": "57.1%",
+          "decided": "287",
+          "width_pct": 72.2
+        },
+        {
+          "name": "UnitedHealthcare Medicare Advantage",
+          "short": "UHC Medicare",
+          "hours": "52.6 hours",
+          "rate": "55.1%",
+          "decided": "570",
+          "width_pct": 70.6
+        },
+        {
+          "name": "SilverScript Medicare Part D",
+          "short": "SilverScript",
+          "hours": "50.5 hours",
+          "rate": "59.6%",
+          "decided": "448",
+          "width_pct": 67.8
+        },
+        {
+          "name": "Aetna Commercial PPO",
+          "short": "Aetna",
+          "hours": "50.0 hours",
+          "rate": "71.4%",
+          "decided": "549",
+          "width_pct": 67.2
+        },
+        {
+          "name": "Cigna Commercial",
+          "short": "Cigna",
+          "hours": "47.7 hours",
+          "rate": "70.2%",
+          "decided": "423",
+          "width_pct": 64.0
+        },
+        {
+          "name": "UnitedHealthcare Commercial PPO",
+          "short": "UHC Commercial",
+          "hours": "44.1 hours",
+          "rate": "69.5%",
+          "decided": "768",
+          "width_pct": 59.2
+        },
+        {
+          "name": "Blue Cross Blue Shield of Illinois",
+          "short": "BCBS Illinois",
+          "hours": "43.8 hours",
+          "rate": "69.5%",
+          "decided": "1,162",
+          "width_pct": 58.8
+        },
+        {
+          "name": "Prairie State Medicaid MCO",
+          "short": "Prairie Medicaid",
+          "hours": "19.6 hours",
+          "rate": "64.6%",
+          "decided": "525",
+          "width_pct": 26.4
         }
       ],
       "drug": [
         {
-          "name": "Cosentyx",
-          "rate": "69.6%",
-          "decided": "266 of 382",
-          "hours": "54.6 hours",
-          "hour_n": "384"
-        },
-        {
-          "name": "Dupixent",
-          "rate": "71.5%",
-          "decided": "293 of 410",
-          "hours": "54.9 hours",
-          "hour_n": "410"
-        },
-        {
           "name": "Enbrel",
-          "rate": "67.6%",
-          "decided": "279 of 413",
+          "short": "Enbrel",
           "hours": "59.3 hours",
-          "hour_n": "416"
-        },
-        {
-          "name": "Foundayo",
-          "rate": "50.2%",
-          "decided": "201 of 400",
-          "hours": "47.4 hours",
-          "hour_n": "340"
-        },
-        {
-          "name": "Humira",
-          "rate": "75.3%",
-          "decided": "311 of 413",
-          "hours": "55.2 hours",
-          "hour_n": "415"
-        },
-        {
-          "name": "Mounjaro",
-          "rate": "73.3%",
-          "decided": "387 of 528",
-          "hours": "38.5 hours",
-          "hour_n": "515"
-        },
-        {
-          "name": "Ozempic",
-          "rate": "69.8%",
-          "decided": "399 of 572",
-          "hours": "39.7 hours",
-          "hour_n": "547"
-        },
-        {
-          "name": "Skyrizi",
-          "rate": "72.2%",
-          "decided": "262 of 363",
-          "hours": "57.2 hours",
-          "hour_n": "365"
+          "rate": "67.6%",
+          "decided": "413",
+          "width_pct": 100.0
         },
         {
           "name": "Tremfya",
-          "rate": "66.5%",
-          "decided": "250 of 376",
+          "short": "Tremfya",
           "hours": "57.5 hours",
-          "hour_n": "378"
+          "rate": "66.5%",
+          "decided": "376",
+          "width_pct": 96.9
         },
         {
-          "name": "Trulicity",
-          "rate": "72.4%",
-          "decided": "338 of 467",
-          "hours": "38.5 hours",
-          "hour_n": "462"
+          "name": "Skyrizi",
+          "short": "Skyrizi",
+          "hours": "57.2 hours",
+          "rate": "72.2%",
+          "decided": "363",
+          "width_pct": 96.5
         },
         {
-          "name": "Wegovy",
-          "rate": "58.1%",
-          "decided": "258 of 444",
-          "hours": "44.4 hours",
-          "hour_n": "403"
+          "name": "Humira",
+          "short": "Humira",
+          "hours": "55.2 hours",
+          "rate": "75.3%",
+          "decided": "413",
+          "width_pct": 93.1
+        },
+        {
+          "name": "Dupixent",
+          "short": "Dupixent",
+          "hours": "54.9 hours",
+          "rate": "71.5%",
+          "decided": "410",
+          "width_pct": 92.6
+        },
+        {
+          "name": "Cosentyx",
+          "short": "Cosentyx",
+          "hours": "54.6 hours",
+          "rate": "69.6%",
+          "decided": "382",
+          "width_pct": 92.0
+        },
+        {
+          "name": "Foundayo",
+          "short": "Foundayo",
+          "hours": "47.4 hours",
+          "rate": "50.2%",
+          "decided": "400",
+          "width_pct": 79.8
         },
         {
           "name": "Zepbound KwikPen",
-          "rate": "55.4%",
-          "decided": "229 of 413",
+          "short": "Zepbound KwikPen",
           "hours": "45.7 hours",
-          "hour_n": "370"
+          "rate": "55.4%",
+          "decided": "413",
+          "width_pct": 77.0
+        },
+        {
+          "name": "Wegovy",
+          "short": "Wegovy",
+          "hours": "44.4 hours",
+          "rate": "58.1%",
+          "decided": "444",
+          "width_pct": 74.8
         },
         {
           "name": "Zepbound single-dose pen",
-          "rate": "45.3%",
-          "decided": "178 of 393",
+          "short": "Zepbound single-dose pen",
           "hours": "42.8 hours",
-          "hour_n": "318"
+          "rate": "45.3%",
+          "decided": "393",
+          "width_pct": 72.2
+        },
+        {
+          "name": "Ozempic",
+          "short": "Ozempic",
+          "hours": "39.7 hours",
+          "rate": "69.8%",
+          "decided": "572",
+          "width_pct": 66.9
+        },
+        {
+          "name": "Trulicity",
+          "short": "Trulicity",
+          "hours": "38.5 hours",
+          "rate": "72.4%",
+          "decided": "467",
+          "width_pct": 64.9
+        },
+        {
+          "name": "Mounjaro",
+          "short": "Mounjaro",
+          "hours": "38.5 hours",
+          "rate": "73.3%",
+          "decided": "528",
+          "width_pct": 64.9
         }
       ],
       "channel": [
         {
-          "name": "ePA",
-          "rate": "65.5%",
-          "decided": "2,595 of 3,960",
-          "hours": "35.8 hours",
-          "hour_n": "3,783"
-        },
-        {
           "name": "fax",
-          "rate": "64.7%",
-          "decided": "756 of 1,169",
+          "short": "fax",
           "hours": "101.7 hours",
-          "hour_n": "1,114"
+          "rate": "64.7%",
+          "decided": "1,169",
+          "width_pct": 100.0
         },
         {
           "name": "phone",
-          "rate": "67.4%",
-          "decided": "300 of 445",
+          "short": "phone",
           "hours": "57.2 hours",
-          "hour_n": "426"
+          "rate": "67.4%",
+          "decided": "445",
+          "width_pct": 56.3
+        },
+        {
+          "name": "ePA",
+          "short": "ePA",
+          "hours": "35.8 hours",
+          "rate": "65.5%",
+          "decided": "3,960",
+          "width_pct": 35.2
         }
       ]
     },
@@ -7444,12 +7523,11 @@ window.DEMO = {
       "What is the approval rate?",
       "Median hours to decision by payer",
       "Approval rate for Wegovy",
-      "Where are cases stuck?",
       "What is our revenue?"
     ],
     "funnel": [
       {
-        "label": "Benefit check started",
+        "label": "Started",
         "count_label": "6,482",
         "width_pct": 100.0
       },
@@ -7459,7 +7537,7 @@ window.DEMO = {
         "width_pct": 99.8
       },
       {
-        "label": "Prior authorization required",
+        "label": "PA required",
         "count_label": "6,132",
         "width_pct": 94.6
       },
@@ -7469,7 +7547,7 @@ window.DEMO = {
         "width_pct": 86.8
       },
       {
-        "label": "Decided after submission",
+        "label": "Decided",
         "count_label": "5,323",
         "width_pct": 82.1
       },
@@ -7481,38 +7559,46 @@ window.DEMO = {
     ],
     "exits": [
       {
-        "label": "Covered with no prior authorization",
-        "count_label": "60"
+        "label": "Covered, no prior authorization",
+        "count_label": "60",
+        "width_pct": 8.6
       },
       {
         "label": "Denied before submission",
-        "count_label": "275"
+        "count_label": "275",
+        "width_pct": 39.3
       },
       {
         "label": "Abandoned",
-        "count_label": "699"
+        "count_label": "699",
+        "width_pct": 100.0
       }
     ],
     "stuck": [
       {
         "label": "Benefit check",
-        "count_label": "14"
+        "count_label": "14",
+        "width_pct": 38.9
       },
       {
         "label": "Not submitted",
-        "count_label": "29"
+        "count_label": "29",
+        "width_pct": 80.6
       },
       {
         "label": "Waiting on information",
-        "count_label": "22"
+        "count_label": "22",
+        "width_pct": 61.1
       },
       {
         "label": "Waiting on a decision",
-        "count_label": "36"
+        "count_label": "36",
+        "width_pct": 100.0
       },
       {
         "label": "Waiting on an appeal",
-        "count_label": "8"
+        "count_label": "8",
+        "width_pct": 22.2
       }
     ]
   }
