@@ -1,0 +1,158 @@
+# Synthetic behavior parameters.
+# These probabilities and clocks-inside-the-generator are assumptions.
+# They are not Develop Health rates and they are not measured payer performance.
+# Structural routing (when a case is Part D, a statutory exclusion, or the
+# Medicare GLP-1 Bridge) lives in pa_model/routing.py and is tied to public
+# sources documented in the README.
+
+seed: 20261102
+n_cases: 36000
+window_start: "2025-11-01 00:00:00"
+window_end: "2026-11-01 18:00:00"
+as_of: "2026-11-02 00:00:00"
+bridge_start: "2026-07-01 00:00:00"
+
+# Share of commercial Trulicity cases treated as covered with no PA.
+# Assumption. Trulicity is an older GLP-1 and some commercial formularies
+# do not put a PA on every strength. This dataset does not read a formulary file.
+trulicity_commercial_no_pa_share: 0.12
+
+approval:
+  part_d_exclusion: 0.05
+  glp1_bridge: 0.80
+  commercial_pa:
+    on_label:
+      glp1_diabetes: 0.82
+      glp1_weight: 0.56
+      biologic: 0.74
+    off_label: 0.27
+  part_d_pa:
+    on_label:
+      glp1_diabetes: 0.74
+      glp1_weight: 0.61
+      biologic: 0.68
+    off_label: 0.24
+  medicaid_pa:
+    on_label:
+      glp1_diabetes: 0.71
+      glp1_weight: 0.52
+      biologic: 0.66
+    off_label: 0.29
+
+adjustments:
+  reauth: 0.10
+  expedited: 0.02
+  cap: 0.94
+  floor: 0.02
+
+# Share of exclusion cases that are submitted as an exception request.
+# The rest are denied at benefit verification and never start a payer PA clock.
+exclusion_submit_share: 0.28
+
+info_request:
+  glp1_diabetes: 0.16
+  glp1_weight: 0.30
+  biologic: 0.36
+  glp1_bridge: 0.22
+  part_d_exclusion: 0.08
+  fax_add: 0.05
+
+abandon_before_submit:
+  base: 0.06
+  fax_add: 0.05
+  weight_add: 0.03
+  bridge: 0.05
+  exclusion: 0.02
+
+abandon_after_info_request: 0.14
+
+appeal_given_denial:
+  base: 0.40
+  exclusion: 0.16
+  off_label: 0.28
+
+overturn_given_appeal:
+  on_label: 0.44
+  off_label: 0.22
+  bridge: 0.47
+  exclusion: 0.08
+
+# Median hours for lognormal draws. Calendar hours, not business hours.
+# CMS drug clocks are calendar time. See 42 CFR 423.568 and the CMS-0057-F FAQ.
+timing:
+  sigma: 0.48
+  benefit_verify:
+    epa: 4
+    phone: 10
+    fax: 28
+  submit_after_pa_required:
+    epa: 8
+    phone: 20
+    fax: 46
+  decision_after_ready:
+    epa: 30
+    phone: 48
+    fax: 88
+  info_to_request: 18
+  info_return: 44
+  appeal_file: 30
+  appeal_decision: 120
+  expedited_multiplier: 0.38
+  line_of_business_multiplier:
+    commercial: 1.00
+    part_d: 1.08
+    medicare_advantage: 1.15
+    medicaid: 0.42
+    glp1_bridge: 1.12
+  payer_multiplier:
+    payer_uhc_com: 0.94
+    payer_aetna_com: 1.00
+    payer_cigna_com: 1.06
+    payer_elevance_com: 1.10
+    payer_bcbs_il: 0.98
+    payer_uhc_ma: 1.08
+    payer_humana_ma: 1.18
+    payer_silverscript: 1.12
+    payer_wellcare: 1.20
+    payer_prairie: 1.00
+    payer_glp1_bridge: 1.00
+
+# Open cases, so the stuck metric has something to show.
+open_cases:
+  recent_age_days: 16
+  recent_probability: 0.48
+  aged_fax_min_days: 22
+  aged_fax_max_days: 100
+  aged_fax_probability: 0.045
+
+# Mess injected into the raw feed. Staging and intermediate models resolve it.
+mess:
+  duplicate_event_share: 0.025
+  late_arrival_share: 0.04
+  decision_correction_share: 0.012
+  missing_event_at_share: 0.004
+  chronology_error_share: 0.004
+  dirty_diagnosis_share: 0.008
+  duplicate_case_share: 0.015
+  unmapped_denial_text_share: 0.008
+  mapped_free_text_share: 0.07
+  duplicate_patient_share: 0.01
+
+reauth:
+  reuse_patient_probability: 0.24
+  same_drug_boost_is_reauth: true
+
+channel_mix:
+  clinic:
+    epa: 0.70
+    fax: 0.22
+    phone: 0.08
+  pharmacy:
+    epa: 0.56
+    fax: 0.22
+    phone: 0.22
+
+expedited_share:
+  glp1_diabetes: 0.14
+  glp1_weight: 0.06
+  biologic: 0.12

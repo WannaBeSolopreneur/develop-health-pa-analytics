@@ -1,0 +1,14 @@
+source_text,denial_reason_code
+not medically necessary,not_medically_necessary
+missing chart notes,missing_documentation
+missing documentation,missing_documentation
+pt did not try preferred agent,step_therapy_not_met
+step therapy not met,step_therapy_not_met
+step therapy,step_therapy_not_met
+plan exclusion,plan_exclusion
+weight loss exclusion,plan_exclusion
+not on formulary,not_on_formulary
+diagnosis not covered,diagnosis_not_covered
+quantity limit,quantity_limit
+duplicate therapy,duplicate_therapy
+redirect to glp-1 bridge,redirect_to_bridge

@@ -1,0 +1,33 @@
+name: pa_analytics
+version: "1.0.0"
+config-version: 2
+profile: pa_analytics
+require-dbt-version: [">=1.8.0", "<2.0.0"]
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+clean-targets: ["target", "dbt_packages"]
+
+vars:
+  demo_clinic_id: "clinic_lakeshore"
+  as_of_timestamp: "2026-11-02 00:00:00"
+  bridge_start_timestamp: "2026-07-01 00:00:00"
+
+models:
+  pa_analytics:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      +schema: marts
+
+seeds:
+  pa_analytics:
+    +schema: seed

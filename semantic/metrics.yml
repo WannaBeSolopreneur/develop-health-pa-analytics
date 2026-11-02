@@ -1,0 +1,182 @@
+# Allow list for the ask agent.
+# SQL expressions live in pa_model/agent/sql.py under the same ids.
+# A metric in this file without a matching SQL expression will not load.
+# A SQL expression that is not listed here cannot be asked.
+
+version: 1
+as_of: "2026-11-02 00:00:00"
+featured_clinic_id: clinic_lakeshore
+
+metrics:
+  approval_rate:
+    name: Approval rate
+    format: rate
+    aliases:
+      - approval rate
+      - approved rate
+      - percent approved
+    group_by:
+      - payer_name
+      - drug_name
+      - channel
+      - line_of_business
+      - drug_class
+      - priority
+      - coverage_path
+      - case_month
+    definition: >
+      Approval rate is the share of decided cases whose final outcome is
+      approved. The denominator is cases with a final outcome of approved or
+      denied. Pending and abandoned cases are excluded. An appeal that is
+      approved counts as approved. A plan exclusion denial is a decision.
+
+  first_pass_approval_rate:
+    name: First pass approval rate
+    format: rate
+    aliases:
+      - first pass approval rate
+      - first pass rate
+      - first pass
+    group_by:
+      - payer_name
+      - drug_name
+      - channel
+      - line_of_business
+      - drug_class
+      - priority
+      - coverage_path
+      - case_month
+    definition: >
+      First pass approval rate is the share of decided cases that were
+      approved on the initial decision, with no information request and no
+      appeal. The denominator is the same decided set as the approval rate.
+
+  median_hours_to_decision:
+    name: Median hours to decision
+    format: hours
+    aliases:
+      - median hours to decision
+      - hours to decision
+      - time to decision
+      - decision time
+    group_by:
+      - payer_name
+      - drug_name
+      - channel
+      - line_of_business
+      - drug_class
+      - priority
+      - coverage_path
+      - case_month
+    definition: >
+      Median hours to decision is the median calendar hours from prior
+      authorization submission to the effective initial decision. Cases with
+      no submission are excluded. The median ignores nulls. Calendar hours
+      are used because the Medicare drug clocks are calendar time.
+
+  abandonment_rate:
+    name: Abandonment rate
+    format: rate
+    aliases:
+      - abandonment rate
+      - abandon rate
+    group_by:
+      - payer_name
+      - drug_name
+      - channel
+      - line_of_business
+      - drug_class
+      - priority
+      - coverage_path
+      - case_month
+    definition: >
+      Abandonment rate is abandoned cases divided by cases that reached a
+      prior authorization requirement and then closed as abandoned, approved,
+      or denied.
+
+  appeal_overturn_rate:
+    name: Appeal overturn rate
+    format: rate
+    aliases:
+      - appeal overturn rate
+      - overturn rate
+    group_by:
+      - payer_name
+      - drug_name
+      - channel
+      - line_of_business
+      - drug_class
+      - priority
+      - coverage_path
+      - case_month
+    definition: >
+      Appeal overturn rate is appeal decisions that are approvals, divided by
+      cases with an appeal decision.
+
+  time_to_therapy:
+    name: Time to therapy
+    format: hours
+    aliases:
+      - time to therapy
+      - hours to therapy
+      - median hours to therapy
+      - median time to therapy
+    group_by:
+      - payer_name
+      - drug_name
+      - channel
+      - line_of_business
+      - drug_class
+      - priority
+      - coverage_path
+      - case_month
+    definition: >
+      Time to therapy is the median calendar hours from the benefit check
+      start to approval, on approved cases only. It is a proxy for access
+      approval. It is not a pharmacy fill.
+
+  cases_stuck:
+    name: Cases stuck
+    format: count
+    aliases:
+      - how many cases are stuck
+      - cases stuck
+      - stuck cases
+      - where are cases stuck
+      - where do cases stall
+      - cases stall
+    group_by:
+      - stuck_stage
+      - payer_name
+      - drug_name
+      - channel
+      - line_of_business
+      - drug_class
+      - priority
+      - coverage_path
+      - case_month
+    definition: >
+      A case is stuck when it is still open and the hours in the current
+      stage are greater than the stage SLA. A case at exactly the SLA is not
+      stuck. The as of time is 2026-11-02 00:00:00, not the clock on the
+      machine.
+
+  case_count:
+    name: Case count
+    format: count
+    aliases:
+      - case count
+      - how many cases
+      - number of cases
+    group_by:
+      - payer_name
+      - drug_name
+      - channel
+      - line_of_business
+      - drug_class
+      - priority
+      - coverage_path
+      - case_month
+    definition: >
+      Case count is the number of cases in the slice after QA fixtures are
+      removed.
