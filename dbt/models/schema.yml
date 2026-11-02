@@ -1,0 +1,225 @@
+version: 2
+
+models:
+  - name: stg_cases
+    description: One raw case row per case_id. The latest updated_at wins. Diagnosis codes get a dot if the feed omitted it.
+    columns:
+      - name: case_id
+        data_tests: [unique, not_null]
+      - name: clinic_id
+        data_tests: [not_null]
+      - name: channel
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["epa", "fax", "phone"]
+      - name: priority
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["standard", "expedited"]
+      - name: coverage_path
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["commercial_pa", "part_d_pa", "part_d_exclusion", "glp1_bridge", "medicaid_pa", "covered_no_pa"]
+
+  - name: stg_case_events
+    description: Raw events with typed timestamps. Duplicates are still here. Resolution happens in int_events_resolved.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: case_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_cases')
+                field: case_id
+
+  - name: stg_clinics
+    description: Tenant accounts. A pharmacy is a tenant too. The tenant key is clinic_id.
+    columns:
+      - name: clinic_id
+        data_tests: [unique, not_null]
+      - name: organization_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["clinic", "pharmacy"]
+
+  - name: stg_payers
+    description: Plans on the case. Medicare GLP-1 Bridge is its own payer so it is not mixed up with Humana Medicare Advantage.
+    columns:
+      - name: payer_id
+        data_tests: [unique, not_null]
+      - name: line_of_business
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["commercial", "medicare_advantage", "part_d", "medicaid", "glp1_bridge"]
+
+  - name: stg_drugs
+    description: Brand drugs with package NDCs and RxCUIs taken from openFDA and RxNorm on 2026-11-02.
+    columns:
+      - name: drug_id
+        data_tests: [unique, not_null]
+      - name: package_ndc
+        data_tests: [not_null]
+
+  - name: stg_patients
+    description: Synthetic adult patients. Duplicate raw rows are collapsed to the latest name.
+    columns:
+      - name: patient_id
+        data_tests: [unique, not_null]
+
+  - name: stg_prescribers
+    description: Synthetic prescribers. NPIs fail the check digit on purpose.
+    columns:
+      - name: prescriber_id
+        data_tests: [unique, not_null]
+
+  - name: int_events_resolved
+    description: Deduped events. A later recorded decision replaces an earlier one. A decision timestamp that lands before submission is repaired from recorded_at when that stamp is valid.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+      - name: event_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  - benefit_check_started
+                  - benefit_verified
+                  - pa_required
+                  - pa_not_required
+                  - pa_submitted
+                  - info_requested
+                  - info_received
+                  - decision_approved
+                  - decision_denied
+                  - appeal_submitted
+                  - appeal_approved
+                  - appeal_denied
+                  - abandoned
+                  - bridge_claim_denied
+                  - plan_redirect_noted
+
+  - name: int_case_spine
+    description: One row per case with clocks, outcomes, and the stuck flag. Metric flags on this spine are the semantic layer the agent is allowed to aggregate.
+    columns:
+      - name: case_id
+        data_tests: [unique, not_null]
+      - name: final_outcome
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["approved", "denied", "abandoned", "covered_no_pa", "pending"]
+
+  - name: fct_pa_cases
+    description: Case fact for internal analytics. Includes every tenant and the QA fixtures.
+    columns:
+      - name: case_id
+        data_tests: [unique, not_null]
+      - name: clinic_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_clinic')
+                field: clinic_id
+      - name: payer_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_payer')
+                field: payer_id
+      - name: drug_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_drug')
+                field: drug_id
+      - name: patient_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_patient')
+                field: patient_id
+      - name: prescriber_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_prescriber')
+                field: prescriber_id
+
+  - name: fct_pa_cases_tenant
+    description: The clinic-facing fact. Filtered to demo_clinic_id and stripped of QA fixtures. This is the table the clinic agent reads.
+    columns:
+      - name: case_id
+        data_tests: [unique, not_null]
+      - name: clinic_id
+        data_tests: [not_null]
+
+  - name: fct_pa_events
+    description: Resolved event grain kept for audit. The agent is not allowed to read this table.
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+
+  - name: mart_headline_metrics
+    description: One row per clinic with every governed metric. QA fixtures are excluded.
+    columns:
+      - name: clinic_id
+        data_tests: [unique, not_null]
+      - name: approval_rate
+        description: Final approvals divided by cases with a final approval or denial.
+
+  - name: mart_pa_funnel
+    description: Cases that reached each stage, plus exits and stuck counts. The stage counts are nested.
+    columns:
+      - name: clinic_id
+        data_tests: [unique, not_null]
+
+  - name: mart_cases_stuck
+    description: Open cases older than the stage clock, by stage.
+    columns:
+      - name: stuck_stage
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ["benefit_check", "pa_not_submitted", "awaiting_info", "awaiting_decision", "awaiting_appeal"]
+
+  - name: mart_data_quality
+    description: How much mess the raw feed contained. Staging resolves it. Metrics do not count QA fixtures.
+    columns:
+      - name: duplicate_events
+        data_tests: [not_null]
+
+  - name: dim_clinic
+    columns:
+      - name: clinic_id
+        data_tests: [unique, not_null]
+  - name: dim_payer
+    columns:
+      - name: payer_id
+        data_tests: [unique, not_null]
+  - name: dim_drug
+    columns:
+      - name: drug_id
+        data_tests: [unique, not_null]
+  - name: dim_patient
+    columns:
+      - name: patient_id
+        data_tests: [unique, not_null]
+  - name: dim_prescriber
+    columns:
+      - name: prescriber_id
+        data_tests: [unique, not_null]

@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lakeshore prior authorization metrics</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="top">
+    <p class="kicker">Built for Develop Health by Asad Moulvi</p>
+    <h1>Prior authorization metrics for one clinic</h1>
+    <p class="lede">Synthetic data for Lakeshore Specialty Clinic. This is not a Develop Health product.</p>
+  </header>
+  <main>
+    <section id="problem">
+      <h2>Problem</h2>
+      <p>Prior authorization sits between a prescription and the medicine. A clinic needs to see whether a case is waiting on a benefit check, a missing note, a payer decision, or an appeal. Approval rate, time to a decision, and a stuck case only help if they mean the same thing every time someone asks. A sentence that invents a number is not a metric.</p>
+    </section>
+    <section id="solution">
+      <h2>Solution</h2>
+      <p>Raw case events are messy. Some arrive late, some are duplicated, and a decision can be corrected. This demo loads that feed with dbt. Staging and intermediate models repair it into one case spine. Marts publish the metrics. The semantic layer is the allow list an agent may use. In Snowflake, each clinic would be fenced by a row access policy. The demo applies that same tenant filter in the clinic mart and in every clinic question. Tests check the grain, the clocks, and the bridge rules.</p>
+      <ul class="tags">
+        <li>dbt</li>
+        <li>Snowflake</li>
+        <li>semantic layer</li>
+        <li>row access policies</li>
+        <li>tests</li>
+      </ul>
+      <pre class="sql-sample">where is_qa_fixture = 0
+  and clinic_id = 'clinic_lakeshore'</pre>
+    </section>
+    <section id="demo">
+      <h2>Demo</h2>
+      <p class="flag">Synthetic clinic data</p>
+      <noscript>
+        <p>This page shows numbers from a file that was built by the pipeline. JavaScript is required to read that file. It does not call a server.</p>
+      </noscript>
+      <p id="demo-intro"></p>
+      <div id="headlines" class="cards"></div>
+      <h3>Where cases stall</h3>
+      <p class="quiet">Each bar is a count from the funnel mart. A later stage is a subset of the one before it. Cases also leave when a drug is covered with no prior authorization, when a plan exclusion is denied before submission, or when the case is abandoned. Those exits sit under the bars so the drop is not one stalled pile.</p>
+      <div id="funnel" class="funnel"></div>
+      <div id="exits" class="exit-row"></div>
+      <h3>Cases past the stage SLA</h3>
+      <p class="quiet">A case is stuck when it is still open and has been in the current stage longer than the SLA. A case sitting exactly on the SLA is not stuck. The clock stops at November 2, 2026.</p>
+      <div id="stuck" class="stuck"></div>
+      <h3>Approval rate and median hours to decision</h3>
+      <p class="quiet">Approval rate uses decided cases. Median hours use cases that have both a submission and a decision. Both numbers are the defined metrics, sliced by one dimension.</p>
+      <div class="splits">
+        <article>
+          <h4>By payer</h4>
+          <div id="by-payer"></div>
+        </article>
+        <article>
+          <h4>By drug</h4>
+          <div id="by-drug"></div>
+        </article>
+        <article>
+          <h4>By channel</h4>
+          <div id="by-channel"></div>
+        </article>
+      </div>
+      <h3>Ask a question</h3>
+      <p class="quiet">The box maps a question onto a defined metric, then looks up an answer that was computed by that SQL. It shows the SQL and the definition. If the question is not defined, it says so and does not guess.</p>
+      <form id="ask-form">
+        <label for="ask-input">Ask a defined metric</label>
+        <div class="ask-row">
+          <input id="ask-input" name="question" autocomplete="off" placeholder="Approval rate for Wegovy">
+          <button type="submit">Ask</button>
+        </div>
+      </form>
+      <div id="chips" class="chips"></div>
+      <div id="ask-result" class="result" hidden></div>
+      <details class="defs">
+        <summary>Metric definitions</summary>
+        <div id="definitions"></div>
+      </details>
+    </section>
+    <section id="about">
+      <h2>About me</h2>
+      <p>Asad Moulvi is a Data Scientist at DataQHealth. He builds healthcare data pipelines that process 10M+ records a year, covering claims, encounters, and patient attribution. He built a FHIR compliant AI scribe for doctors. He built Snowflake ETL that loaded a client's data into their Snowflake warehouse, and he holds a Snowflake certification. He built a PyTorch NLP system that summarizes cardiac device alerts and saves nurses 3 hours a day. He earned an MS in Business Analytics and AI from UT Dallas.</p>
+      <p>This demo is built in dbt. It is a portfolio piece for the Lead Analytics Engineer role.</p>
+      <ul class="links">
+        <li><a href="https://github.com/WannaBeSolopreneur">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/asad-moulvi-aaa278175">LinkedIn</a></li>
+        <li><a href="mailto:asad.moulvi01@gmail.com">asad.moulvi01@gmail.com</a></li>
+      </ul>
+    </section>
+  </main>
+  <footer>
+    <p>Built for Develop Health by Asad Moulvi. Synthetic data. Not a Develop Health product.</p>
+  </footer>
+  <script src="data.js"></script>
+  <script src="ask.js"></script>
+</body>
+</html>

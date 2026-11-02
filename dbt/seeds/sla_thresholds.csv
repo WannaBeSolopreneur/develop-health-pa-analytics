@@ -1,0 +1,51 @@
+line_of_business,stage,priority,sla_hours,basis
+commercial,benefit_check,standard,24,analytic assumption for benefit verification
+commercial,benefit_check,expedited,8,analytic assumption for benefit verification
+commercial,pa_not_submitted,standard,48,analytic assumption for clinic follow-through
+commercial,pa_not_submitted,expedited,24,analytic assumption for clinic follow-through
+commercial,awaiting_info,standard,72,analytic assumption while the clinic owes notes
+commercial,awaiting_info,expedited,48,analytic assumption while the clinic owes notes
+commercial,awaiting_decision,standard,72,analytic SLA aligned to the Part D standard clock for comparison
+commercial,awaiting_decision,expedited,24,analytic SLA aligned to the Part D expedited clock for comparison
+commercial,awaiting_appeal,standard,168,analytic assumption for a commercial appeal
+commercial,awaiting_appeal,expedited,72,analytic assumption for a commercial appeal
+part_d,benefit_check,standard,24,analytic assumption for benefit verification
+part_d,benefit_check,expedited,8,analytic assumption for benefit verification
+part_d,pa_not_submitted,standard,48,analytic assumption for clinic follow-through
+part_d,pa_not_submitted,expedited,24,analytic assumption for clinic follow-through
+part_d,awaiting_info,standard,72,analytic assumption while the clinic owes notes
+part_d,awaiting_info,expedited,48,analytic assumption while the clinic owes notes
+part_d,awaiting_decision,standard,72,42 CFR 423.568 standard Part D timeframe
+part_d,awaiting_decision,expedited,24,42 CFR 423.572 expedited Part D timeframe
+part_d,awaiting_appeal,standard,168,42 CFR 423.590 standard Part D redetermination
+part_d,awaiting_appeal,expedited,72,42 CFR 423.590 expedited Part D redetermination
+medicare_advantage,benefit_check,standard,24,analytic assumption for benefit verification
+medicare_advantage,benefit_check,expedited,8,analytic assumption for benefit verification
+medicare_advantage,pa_not_submitted,standard,48,analytic assumption for clinic follow-through
+medicare_advantage,pa_not_submitted,expedited,24,analytic assumption for clinic follow-through
+medicare_advantage,awaiting_info,standard,72,analytic assumption while the clinic owes notes
+medicare_advantage,awaiting_info,expedited,48,analytic assumption while the clinic owes notes
+medicare_advantage,awaiting_decision,standard,72,42 CFR 423.568 for a Part D drug on an MA-PD plan
+medicare_advantage,awaiting_decision,expedited,24,42 CFR 423.572 for a Part D drug on an MA-PD plan
+medicare_advantage,awaiting_appeal,standard,168,42 CFR 423.590 for a Part D redetermination
+medicare_advantage,awaiting_appeal,expedited,72,42 CFR 423.590 for a Part D redetermination
+medicaid,benefit_check,standard,24,analytic assumption for benefit verification
+medicaid,benefit_check,expedited,8,analytic assumption for benefit verification
+medicaid,pa_not_submitted,standard,48,analytic assumption for clinic follow-through
+medicaid,pa_not_submitted,expedited,24,analytic assumption for clinic follow-through
+medicaid,awaiting_info,standard,72,analytic assumption while the clinic owes notes
+medicaid,awaiting_info,expedited,48,analytic assumption while the clinic owes notes
+medicaid,awaiting_decision,standard,24,SSA 1927(d)(5) and 42 CFR 438.3(s)(6) for covered outpatient drugs
+medicaid,awaiting_decision,expedited,24,SSA 1927(d)(5) and 42 CFR 438.3(s)(6) for covered outpatient drugs
+medicaid,awaiting_appeal,standard,168,analytic assumption for this fictional Medicaid plan
+medicaid,awaiting_appeal,expedited,72,analytic assumption for this fictional Medicaid plan
+glp1_bridge,benefit_check,standard,24,analytic assumption for benefit verification
+glp1_bridge,benefit_check,expedited,8,analytic assumption for benefit verification
+glp1_bridge,pa_not_submitted,standard,48,analytic assumption for clinic follow-through
+glp1_bridge,pa_not_submitted,expedited,24,analytic assumption for clinic follow-through
+glp1_bridge,awaiting_info,standard,72,analytic assumption while the clinic owes notes
+glp1_bridge,awaiting_info,expedited,48,analytic assumption while the clinic owes notes
+glp1_bridge,awaiting_decision,standard,72,analytic assumption because the public bridge page does not state a decision clock
+glp1_bridge,awaiting_decision,expedited,24,analytic assumption because the public bridge page does not state a decision clock
+glp1_bridge,awaiting_appeal,standard,168,analytic assumption for a bridge appeal
+glp1_bridge,awaiting_appeal,expedited,72,analytic assumption for a bridge appeal
